@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Mimi.Testing.AdminTools
+namespace IngameDebugConsole
 {
     public class FilterAdInfo : MonoBehaviour
     {

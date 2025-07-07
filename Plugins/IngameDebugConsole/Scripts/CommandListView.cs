@@ -14,14 +14,12 @@ namespace IngameDebugConsole
         [SerializeField] private GameObject commandViewGo;
         [SerializeField] private RectTransform commandItemRoot;
 
+        private Dictionary<string, CommandItem> commandItems = new Dictionary<string, CommandItem>();
+
         private void Awake()
         {
+            this.commandItems = new Dictionary<string, CommandItem>(5);
             this.commandViewToggleButton.onClick.AddListener(ToggleCommandViewHandler);
-        }
-
-        private void Start()
-        {
-            InitCommandItems();
         }
 
         private void InitCommandItems()
@@ -30,17 +28,21 @@ namespace IngameDebugConsole
 
             foreach (ConsoleMethodInfo command in commands)
             {
-                CreateCommandItem(command);
+                bool alreadyExists = this.commandItems.ContainsKey(command.signature);
+                if (alreadyExists) continue;
+                CommandItem commandItem = CreateCommandItem(command);
+                this.commandItems.Add(command.signature, commandItem);
             }
         }
 
-        private void CreateCommandItem(ConsoleMethodInfo command)
+        private CommandItem CreateCommandItem(ConsoleMethodInfo command)
         {
             GameObject commandGo = Instantiate(this.commandItemPrefab, this.commandItemRoot, false);
             commandGo.transform.localPosition = Vector3.zero;
             commandGo.transform.localRotation = Quaternion.identity;
             var commandItem = commandGo.GetComponent<CommandItem>();
             commandItem.InitCommand(command.signature, command.method, command.instance);
+            return commandItem;
         }
 
         private List<ConsoleMethodInfo> GetCommands()
@@ -61,6 +63,11 @@ namespace IngameDebugConsole
             }
 
             this.commandViewGo.SetActive(!this.commandViewGo.activeSelf);
+
+            if (this.commandViewGo.activeSelf)
+            {
+                InitCommandItems();
+            }
         }
     }
 }
